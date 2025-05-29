@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Word, Category, Card, CardSet, Translation, Profile
+
+admin.site.register([Word, Category, Card, CardSet, Translation, Profile])
