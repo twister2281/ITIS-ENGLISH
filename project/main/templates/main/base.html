@@ -10,6 +10,12 @@
     <link rel="stylesheet" href="{% static 'main/css/main.css' %}">
 </head>
 <body>
+    {% if user.is_authenticated %}
+  Привет, {{ user.username }} || 
+{% else %}
+  <a href="{% url 'login' %}">Вход</a> | <a href="{% url 'register' %}">Регистрация</a>
+{% endif %}
+
     <img src="{% static 'main/img/images.png' %}" alt="">
     {% block base %}
     {% endblock %}
