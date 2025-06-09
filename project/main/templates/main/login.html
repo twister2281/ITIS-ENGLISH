@@ -1,0 +1,15 @@
+{% extends 'main/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+{% load crispy_forms_tags %}
+<div class="container py-5">
+    <h1>Login</h1>
+    <form method="POST">
+      {% csrf_token %}
+      <input type="text" class="register-input" placeholder="имя пользователя" name="username">
+      <input type="password" class="register-input" placeholder="Пароль" name="password">
+      <button class="btn btn-primary" type="submit">Login</button>
+    </form>
+    <br>
+    <p class="text-center">Нет аккаунта? <a href="/register">Создайте</a>.</p>
+  </div>

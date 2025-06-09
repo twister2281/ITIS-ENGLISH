@@ -12,4 +12,6 @@ urlpatterns = [
     path('remember_card', views.remember_card, name='remember'),
     path('dont_remember_card', views.dont_remember_card, name='dont_remember'),
     path('edit_card', views.edit_card, name='edit'),
+    path("register", views.register, name="register"),  
+    path("login_a", views.login_site, name="login_a"),
 ]

@@ -1,0 +1,11 @@
+{% load crispy_forms_tags %} 
+
+<div class="container py-5">
+	<h1>Register</h1>
+	<form method="POST">
+		{% csrf_token %}
+		{{form.as_p}}                    
+		<button class="btn btn-primary" type="submit">Зарегестрировать аккаунт</button>
+	</form>
+	{% comment %} <p class="text-center">Уже есть аккаунт? <a href="/login_a">Войдите</a> </p> {% endcomment %}
+</div>

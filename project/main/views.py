@@ -1,5 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+from .forms import RegisterForm
+from django.contrib.auth import login, authenticate, logout
+from django.shortcuts import redirect, render
+
+
 
 from main.utils.utils import MasterCard
 from main.models import Profile
@@ -57,3 +62,41 @@ def index(request):
 
 def about(request):
     pass
+
+def logout_site(request):
+    if request.user.is_authenticated:
+        logout(request)
+    return redirect('index')
+
+
+def login_site(request):
+    if request.user.is_authenticated:
+        return redirect('index')
+    message = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('index')
+        else:
+            message = 'Извините, такого пользователя не существует'
+            return render(request, 'main/login.html', {'message': message})
+    return render(request, 'main/login.html', {'message': message})
+
+def register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return render(request, 'main/index.html')
+    else:
+        form = RegisterForm()
+    return render(request, 'main/register.html', {'form':form})
+	
+
+
+def index(request):
+    return render(request, 'main/index.html')
