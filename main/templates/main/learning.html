@@ -1,0 +1,277 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content  %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Flashcards</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'main/css/learning.css' %}">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <h1 class="text-center mb-4">English Flashcards</h1>
+
+                <!-- Progress Bar -->
+                <div class="progress-container mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Progress</span>
+                        <span><span id="current-card">1</span>/<span id="total-cards">10</span></span>
+                    </div>
+                    <div class="progress">
+                        <div id="progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 10%"></div>
+                    </div>
+                </div>
+
+                <!-- Flashcard -->
+                <div class="flashcard-container">
+                    <div class="flashcard" id="flashcard" onclick="flipCard()">
+                        <div class="flashcard-face flashcard-front">
+                            <div class="word-display" id="word-front">Apple</div>
+                        </div>
+                        <div class="flashcard-face flashcard-back">
+                            <div class="word-display" id="word-back">Яблоко</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remember/Don't Remember Buttons -->
+                <div class="d-flex justify-content-center mt-4">
+                    <button class="btn btn-danger btn-control" onclick="dontRemember()">
+                        <i class="bi bi-x-circle"></i> Не помню
+                    </button>
+                    <button class="btn btn-success btn-control" onclick="remember()">
+                        <i class="bi bi-check-circle"></i> Помню
+                    </button>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="d-flex justify-content-center mt-3">
+                    <button class="btn btn-outline-secondary btn-control" onclick="prevCard()">
+                        <i class="bi bi-arrow-left"></i> Назад
+                    </button>
+                    <button class="btn btn-outline-secondary btn-control" onclick="skipCard()">
+                        Пропустить <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-center action-buttons">
+                    <button class="btn btn-primary btn-control" data-bs-toggle="modal" data-bs-target="#editModal">
+                        <i class="bi bi-pencil"></i> Редактировать
+                    </button>
+                    <button class="btn btn-info btn-control" data-bs-toggle="modal" data-bs-target="#addModal">
+                        <i class="bi bi-plus-circle"></i> Добавить
+                    </button>
+                    <button class="btn btn-warning btn-control" onclick="deleteCurrentCard()">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Card Modal -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Добавить новую карточку</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="newEnglish" class="form-label">Английское слово</label>
+                        <input type="text" class="form-control" id="newEnglish">
+                    </div>
+                    <div class="mb-3">
+                        <label for="newTranslation" class="form-label">Перевод</label>
+                        <input type="text" class="form-control" id="newTranslation">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" onclick="addNewCard()">Добавить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Card Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактировать карточку</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editEnglish" class="form-label">Английское слово</label>
+                        <input type="text" class="form-control" id="editEnglish">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTranslation" class="form-label">Перевод</label>
+                        <input type="text" class="form-control" id="editTranslation">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEditedCard()">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery connection -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Helper JS class -->
+    <script src="{% static 'main/js/MasterCard2.js' %}"></script>
+
+    <!-- JavaScript for flashcard functionality -->
+    <script>
+
+        isFlipped = false;
+        masterCard = new MasterCard('{{ csrf_token }}', '{% url 'get' %}');
+
+        // Initialize
+        $(document).ready(function() {
+            updateCard();
+        });
+
+        // Flip card function
+        function flipCard() {
+            const card = $('#flashcard');
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                card.addClass('is-flipped');
+            } else {
+                card.removeClass('is-flipped');
+            }
+        }
+
+        // Update card content
+        function updateCard() {
+            masterCard.get_current_card().then(currentCard => {
+                $('#word-front').text(currentCard.word);
+                $('#word-back').text(currentCard.translation);
+
+                $('#total-cards').text(masterCard.buffer.getSize());
+            });
+            
+            $('#current-card').text(masterCard.get_current_index()); // TODO
+            // Update progress bar
+            const progress = ((masterCard.get_current_index() + 1) / masterCard.buffer.getSize()) * 100;
+            $('#progress-bar').css('width', `${progress}%`);
+            
+            // Reset card flip state
+            if (isFlipped) {
+                $('#flashcard').toggleClass('is-flipped');
+            }
+        }
+
+        // Navigation functions
+        function nextCard() {
+            masterCard.go_to_next_card();
+
+            updateCard();
+        }
+
+        {% comment %} function prevCard() {
+            if (cards.length === 0) return;
+
+            if (currentIndex > 0) {
+                currentIndex--;
+            } else {
+                currentIndex = cards.length - 1; // Loop to end
+            }
+            updateCard();
+        } { % endcomment % }
+
+        function skipCard() {
+            nextCard();
+        }
+
+        // Remember/don't remember functions
+        function remember() {
+            masterCard.remember_card('{% url 'remember' %}');
+
+            nextCard();
+        }
+
+        function dontRemember() {
+            masterCard.dont_remember_card('{% url 'dont_remember' %}');
+
+            nextCard();
+        }
+
+        // Card management functions
+        function addNewCard() {
+            const word = $('#newEnglish').val().trim();
+            const translation = $('#newTranslation').val().trim();
+
+            if (word && translation) {
+
+                masterCard.add_new_card('{% url 'add' %}', word, translation).then(() => {
+                    // Reset form and close modal
+                    $('#newEnglish').val('');
+                    $('#newTranslation').val('');
+                    $('#addModal').modal('hide');
+                    
+                    updateCard();
+                });
+            } else {
+                alert('Пожалуйста, заполните оба поля');
+            }
+        }
+
+        {% comment %} function deleteCurrentCard() {
+            if (cards.length === 0) return;
+
+            if (confirm('Удалить карточку "' + cards[currentIndex].word + '"?')) {
+                cards.splice(currentIndex, 1);
+                updateTotalCards();
+
+                // Adjust current index if we deleted the last card
+                if (currentIndex >= cards.length && cards.length > 0) {
+                    currentIndex = cards.length - 1;
+                }
+
+                updateCard();
+            }
+        } {% endcomment %}
+
+        // Edit card functions
+        $('#editModal').on('show.bs.modal', function() {
+            masterCard.get_current_card().then(currentCard => {
+                $('#editEnglish').val(currentCard.word);
+                $('#editTranslation').val(currentCard.translation);
+            });
+        });
+
+        function saveEditedCard() {
+            const word = $('#editEnglish').val().trim();
+            const translation = $('#editTranslation').val().trim();
+
+            if (word && translation) {
+                masterCard.edit_card('{% url 'edit' %}', word, translation).then(() => { 
+                    updateCard();
+                    $('#editModal').modal('hide');
+                });
+            } else {
+                alert('Пожалуйста, заполните оба поля');
+            }
+        }
+    </script>
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,181 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqa0hoWjVSbEpxR0h6MGdSQjhId2xGQ0IyS3Zxd3xBQ3Jtc0trYXI2dnVZOHdEQUdOMTNELTlPMG9OREZpWm9TLXowWUw4UTY3Z01WYlpRaERNWDI5aFdGWTRVbUlXMGE3cGUtM25jM1p2Z1RxQUlfeGhfcTBYaFBjMGdUeWFrcWlqdkVSMFNIT2FPOFEySzFRY3ZOTQ&q=https%3A%2F%2Fuse.fontawesome.com%2Freleases%2Fv5.8.2%2Fcss%2Fall.css&v=OYeqcxaYUbQ">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>{% block title %}  {% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'main/css/main.css' %}">
+</head>
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">Мои слова</h1>
+        <a href="" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Добавить слова
+        </a>
+    </div>
+
+    <!-- Фильтры и поиск -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" placeholder="Поиск по словам..." id="wordSearch">
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="languageFilter">
+                        <option value="">Все языки</option>
+                        <option value="EN">Английский</option>
+                        <option value="RU">Русский</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="difficultyFilter">
+                        <option value="">Все уровни</option>
+                        <option value="A1">A1</option>
+                        <option value="A2">A2</option>
+                        <option value="B1">B1</option>
+                        <option value="B2">B2</option>
+                        <option value="C1">C1</option>
+                        <option value="C2">C2</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Наборы карточек -->
+    <h2 class="mb-3">Мои наборы</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+        {% for card_set in card_sets %}
+        <div class="col">
+            <div class="card card-word h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title mb-0">{{ card_set.name }}</h5>
+                        <span class="badge bg-primary">{{ card_set.cards.count }} слов</span>
+                    </div>
+                    <p class="card-text text-muted">
+                        {{ card_set.first_language }} → {{ card_set.second_language }}
+                    </p>
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="#" class="btn btn-sm btn-outline-primary">Учить</a>
+                        <div>
+                            <a href="#" class="btn btn-sm btn-outline-secondary me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="#" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                У вас пока нет наборов слов. <a href="">Создайте первый набор</a>.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Все слова -->
+    <h2 class="mb-3">Все слова</h2>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="wordsTable">
+                    <thead>
+                        <tr>
+                            <th>Слово</th>
+                            <th>Перевод</th>
+                            <th>Язык</th>
+                            <th>Уровень</th>
+                            <th>Набор</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for word in words %}
+                        <tr>
+                            <td>{{ word.text }}</td>
+                            <td>
+                                {% for card in word.card_set.all %}
+                                    {{ card.translation.text }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ word.get_language_display }}</td>
+                            <td>
+                                <span class="badge bg-{% if word.difficulty == 'A1' or word.difficulty == 'A2' %}success{% elif word.difficulty == 'B1' or word.difficulty == 'B2' %}warning{% else %}danger{% endif %}">
+                                    {{ word.get_difficulty_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% for card_set in word.card_set.all|slice:":3" %}
+                                    <span class="badge bg-light text-dark">{{ card_set.cardset.name }}</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="#" class="btn btn-outline-primary" title="Редактировать">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-outline-danger" title="Удалить">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                У вас пока нет слов. <a href="">Добавьте первые слова</a>.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript для фильтрации -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const wordSearch = document.getElementById('wordSearch');
+    const languageFilter = document.getElementById('languageFilter');
+    const difficultyFilter = document.getElementById('difficultyFilter');
+    const wordsTable = document.getElementById('wordsTable');
+    
+    function filterWords() {
+        const searchTerm = wordSearch.value.toLowerCase();
+        const languageValue = languageFilter.value;
+        const difficultyValue = difficultyFilter.value;
+        
+        const rows = wordsTable.getElementsByTagName('tbody')[0].rows;
+        
+        for (let row of rows) {
+            const word = row.cells[0].textContent.toLowerCase();
+            const language = row.cells[2].textContent;
+            const difficulty = row.cells[3].textContent.trim();
+            
+            const matchesSearch = word.includes(searchTerm);
+            const matchesLanguage = !languageValue || language.includes(languageValue);
+            const matchesDifficulty = !difficultyValue || difficulty.includes(difficultyValue);
+            
+            row.style.display = (matchesSearch && matchesLanguage && matchesDifficulty) ? '' : 'none';
+        }
+    }
+    
+    wordSearch.addEventListener('input', filterWords);
+    languageFilter.addEventListener('change', filterWords);
+    difficultyFilter.addEventListener('change', filterWords);
+});
+</script>
+{% endblock %}

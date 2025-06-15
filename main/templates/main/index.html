@@ -1,0 +1,309 @@
+{% extends 'main/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+
+
+{% block base %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordMaster - Изучение слов</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        body {
+            background-color: #f5f7ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 3rem;
+            margin-top: 2rem;
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
+        }
+        
+        .card-word {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card-word:hover {
+            transform: translateY(-5px);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .stats-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+        
+        .progress-bar {
+            background-color: var(--accent-color);
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигационная панель -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-book-half me-2"></i>ITISLingo
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Главная</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'my_words' %}">Мои слова</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Тренировки</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    {% if user.is_authenticated %}
+                        <div class="me-3">
+                            <span class="fw-bold">{{ user.username }}</span>
+                            <div class="small text-muted">Уровень: Продвинутый</div>
+                        </div>
+                        <img src="https://img.icons8.com/?size=30&id=11781&format=png&color=000000" alt="Profile" class="rounded-circle me-2">
+                        <a href="{% url 'user:logout' %}" class="btn btn-outline-danger btn-sm">Выйти</a>
+                    {% else %}
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'user:login' %}" class="btn btn-outline-primary btn-sm me-2">Войти</a>
+                            <a href="{% url 'user:register' %}" class="btn btn-primary btn-sm">Регистрация</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="container my-5">
+        <!-- Герой-секция -->
+        <div class="hero-section">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="display-4 fw-bold mb-4">Расширьте свой словарный запас</h1>
+                    <p class="lead mb-4">Изучайте новые слова каждый день с интерактивными карточками и умными тренировками.</p>
+                    <a href="{% url 'learning' %}" class="btn btn-light btn-lg me-2">Начат обучение</a>
+                    <a href="{% url 'add' %}" class="btn btn-outline-light btn-lg">Добавить слова</a>
+                </div>
+                <div class="col-md-6">
+                    <img src="https://via.placeholder.com/500x300" alt="Learning" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-3 mb-4">
+                <div class="stats-card text-center">
+                    <h3 class="text-primary">11</h3>
+                    <p class="text-muted">Всего слов</p>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" style="width: 75%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card text-center">
+                    <h3 class="text-primary">0</h3>
+                    <p class="text-muted">Изучено</p>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" style="width: 65%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card text-center">
+                    <h3 class="text-primary">1</h3>
+                    <p class="text-muted">Дней подряд</p>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" style="width: 90%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card text-center">
+                    <h3 class="text-primary">100%</h3>
+                    <p class="text-muted">Успешность</p>
+                    <div class="progress mt-2">
+                        <div class="progress-bar" style="width: 94%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточки слов -->
+        <h2 class="mt-5 mb-4 fw-bold">Сегодняшние слова</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="col">
+                <div class="card card-word h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge bg-primary">Новое</span>
+                            <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-bookmark"></i></button>
+                        </div>
+                        <h3 class="card-title">Eloquent</h3>
+                        <p class="card-text text-muted">/ˈeləkwənt/</p>
+                        <p class="card-text">Выражающий мысли ясно и убедительно</p>
+                        <div class="d-flex justify-content-between mt-3">
+                            <button class="btn btn-sm btn-outline-primary">Примеры</button>
+                            <div>
+                                <button class="btn btn-sm btn-success me-1"><i class="bi bi-check"></i></button>
+                                <button class="btn btn-sm btn-danger"><i class="bi bi-x"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card card-word h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge bg-warning text-dark">Повторение</span>
+                            <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-bookmark"></i></button>
+                        </div>
+                        <h3 class="card-title">Ubiquitous</h3>
+                        <p class="card-text text-muted">/juːˈbɪkwɪtəs/</p>
+                        <p class="card-text">Присутствующий повсюду или встречающийся везде</p>
+                        <div class="d-flex justify-content-between mt-3">
+                            <button class="btn btn-sm btn-outline-primary">Примеры</button>
+                            <div>
+                                <button class="btn btn-sm btn-success me-1"><i class="bi bi-check"></i></button>
+                                <button class="btn btn-sm btn-danger"><i class="bi bi-x"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card card-word h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge bg-success">Выучено</span>
+                            <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-bookmark"></i></button>
+                        </div>
+                        <h3 class="card-title">Pragmatic</h3>
+                        <p class="card-text text-muted">/præɡˈmætɪk/</p>
+                        <p class="card-text">Практичный, ориентированный на реальные факты</p>
+                        <div class="d-flex justify-content-between mt-3">
+                            <button class="btn btn-sm btn-outline-primary">Примеры</button>
+                            <div>
+                                <button class="btn btn-sm btn-success me-1"><i class="bi bi-check"></i></button>
+                                <button class="btn btn-sm btn-danger"><i class="bi bi-x"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Призыв к действию -->
+        <div class="text-center mt-5 py-5">
+            <h2 class="fw-bold mb-4">Готовы улучшить свой словарный запас?</h2>
+            <p class="lead mb-4">Начните прямо сейчас и добавьте первые слова в свою коллекцию</p>
+            <a href="#" class="btn btn-primary btn-lg px-4">Добавить новые слова</a>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5>WordMaster</h5>
+                    <p>Лучший способ изучать и запоминать новые слова на любом языке.</p>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h5>Меню</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Главная</a></li>
+                        <li><a href="#" class="text-white">Мои слова</a></li>
+                        <li><a href="#" class="text-white">Тренировки</a></li>
+                        <li><a href="#" class="text-white">Статистика</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h5>Поддержка</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Помощь</a></li>
+                        <li><a href="#" class="text-white">FAQ</a></li>
+                        <li><a href="#" class="text-white">Контакты</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Подписаться</h5>
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control" placeholder="Ваш email">
+                        <button class="btn btn-primary" type="button">OK</button>
+                    </div>
+                    <div class="h4">
+                        <a href="#" class="text-white me-3"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white me-3"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-white me-3"><i class="bi bi-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <div class="text-center">
+                <small>© 2023 WordMaster. Все права защищены.</small>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+{% endblock %}
