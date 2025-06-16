@@ -195,7 +195,7 @@
                 currentIndex = cards.length - 1; // Loop to end
             }
             updateCard();
-        } { % endcomment % }
+        }  {% endcomment %}
 
         function skipCard() {
             nextCard();
@@ -233,22 +233,6 @@
                 alert('Пожалуйста, заполните оба поля');
             }
         }
-
-        {% comment %} function deleteCurrentCard() {
-            if (cards.length === 0) return;
-
-            if (confirm('Удалить карточку "' + cards[currentIndex].word + '"?')) {
-                cards.splice(currentIndex, 1);
-                updateTotalCards();
-
-                // Adjust current index if we deleted the last card
-                if (currentIndex >= cards.length && cards.length > 0) {
-                    currentIndex = cards.length - 1;
-                }
-
-                updateCard();
-            }
-        } {% endcomment %}
 
         // Edit card functions
         $('#editModal').on('show.bs.modal', function() {
